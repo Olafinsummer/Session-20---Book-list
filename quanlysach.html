@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý sách</title>
+</head>
+<body>
+    <button id="btnAdd">Thêm sách</button>
+    <input oninput="handleSearch(event)" type="text" placeholder="Tìm kiếm theo tên">
+    <select name="" id="" onchange="handleSort(event)">
+        <option value="default">Mặc định</option>
+        <option value="asc">Tăng dần theo giá</option>
+        <option value="desc">Giảm dần theo giá</option>
+    </select>
+    <table border="1" cellpadding="5" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tên sách</th>
+                <th>Giá</th>
+                <th>Tác giả</th>
+                <th>Trạng thái</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="list">
+            
+        </tbody>
+    </table>
+    <script>
+        let books = []
+        const tbody = document.getElementById('list')
+        const btnAdd = document.getElementById('btnAdd')
+
+        function Book(bookId, bookName, price, author, bookStatus) {
+        this.bookId = bookId
+        this.bookName = bookName
+        this.price = price
+        this.author = author
+        this.bookStatus = bookStatus;
+        }
+
+        function inputData() {
+            const book = new Book()
+            book.bookId = prompt('ID: ')
+            book.bookName = prompt('Tên sách: ')
+            book.price = prompt('Giá tiền: ')
+            book.author = prompt('Tác giả: ')
+            book.bookStatus = prompt('Trạng thái: ')
+            books.push(book)
+            const row = displayData(book)
+            tbody.appendChild(row)
+        }
+
+        function displayData(book) {
+            const row = document.createElement('tr')
+            row.innerHTML += `
+                <td>${book.bookId}</td>
+                <td>${book.bookName}</td>
+                <td>${book.price}</td>
+                <td>${book.author}</td>
+                <td>${book.bookStatus}</td>
+                <td>
+                <button onclick="handleEdit('${book.bookId}')">Sửa</button>
+                <button onclick="handleDelete('${book.bookId}')">Xóa</button>
+                </td>
+            `
+            return row
+        }
+
+        function handleSort(event) {
+            let sort = event.target.value
+            let result = []
+            if (sort === 'asc') {
+                result = [...books].sort((b1, b2) => b1.price - b2.price)
+            } else if (sort === 'desc') {
+                result = [...books].sort((b1, b2) => b2.price - b1.price)
+            } else {
+                result = books
+            }
+            loadData(result)
+        }
+
+        function handleEdit(id) {
+            let b = books.find(x => x.bookId === id)
+            if (b) {
+                b.bookName = prompt('Tên sách:', b.bookName)
+                b.price = prompt('Giá tiền:', b.price)
+                b.author = prompt('Tác giả:', b.author)
+                b.bookStatus = prompt('Trạng thái:', b.bookStatus)
+                loadData(books)
+            }
+        }
+
+        function handleDelete(id){
+            console.log('delete')
+            let index = books.findIndex(x => x.bookId === id)
+            if(confirm('Bạn có chắc muốn xóa không?')){
+                books.splice(index, 1)
+                loadData(books)
+            }
+        }
+
+        function handleSearch(event) {
+            let search = event.target.value.toLowerCase()
+            let result = [...books].filter(x => x.bookName.toLowerCase().indexOf(search) >= 0)
+            loadData(result)
+        }
+
+        function loadData(books) {
+            tbody.innerHTML = ''
+            for (let item of books) {
+                const row = displayData(item)
+                tbody.appendChild(row)
+            }
+        }
+
+        btnAdd.onclick = inputData
+        loadData(books)
+
+    </script>
+</body>
+</html>
